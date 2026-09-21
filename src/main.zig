@@ -1,71 +1,59 @@
 const std = @import("std");
-const Io = std.Io;
+//const Io = std.Io;
+//a small terminal program that analzyes a piece of text
 
 const zig_text_inspector = @import("zig_text_inspector");
 
-pub fn main(init: std.process.Init) !void {
-    // Prints to stderr, unbuffered, ignoring potential errors.
-    std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
+pub fn main() !void {
+    const text: []const u8 = "Zig is simple, fast and explicit. Learning Zig is fun";
+    var vowel_count: usize = 0;
+    var space_count: usize = 0;
+    var word_count: usize = 0;
+    var zig_count: usize = 0;
 
-    // This is appropriate for anything that lives as long as the process.
-    const arena: std.mem.Allocator = init.arena.allocator();
+    //flag to track when inside words.
+    var in_word: bool = false;
 
-    // Accessing command line arguments:
-    const args = try init.minimal.args.toSlice(arena);
-    for (args) |arg| {
-        std.log.info("arg: {s}", .{arg});
+    //print text len.
+    std.debug.print("'{s}' this text has  {d} characters\n", .{ text, text.len });
+
+    var byte_array: [text.len]u8 = undefined;
+    @memcpy(&byte_array, text);
+
+    //get the first 3 bytes and last 4 bytes
+    const first_bytes = byte_array[0..3];
+    const text_len = byte_array.len;
+    const last_bytes = byte_array[text_len - 4 .. text_len];
+    //print
+    std.debug.print("First 3 bytes: {s}\n", .{first_bytes});
+    std.debug.print("Last 4 bytes: {s}\n", .{last_bytes});
+
+    //check if "zig" and "fun" exists.
+    std.debug.print("Text starts with Zig: {any}\n", .{std.mem.startsWith(u8, text, "Zig")});
+    std.debug.print("Text Ends with fun: {any}\n", .{std.mem.endsWith(u8, text, "fun")});
+
+    //loop
+    for (text) |char| {
+        switch (char) {
+            'a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U' => {
+                vowel_count += 1;
+            },
+            ' ' => {
+                space_count += 1;
+            },
+            else => {},
+        }
+
+        if (char == ' ') {
+            in_word = false;
+        } else if (!in_word) {
+            in_word = true;
+            word_count += 1;
+        }
     }
 
-    // In order to do I/O operations need an `Io` instance.
-    const io = init.io;
-
-    // Stdout is for the actual output of your application, for example if you
-    // are implementing gzip, then only the compressed bytes should be sent to
-    // stdout, not any debugging messages.
-    var stdout_buffer: [1024]u8 = undefined;
-    var stdout_file_writer: Io.File.Writer = .init(.stdout(), io, &stdout_buffer);
-    const stdout_writer = &stdout_file_writer.interface;
-
-    try zig_text_inspector.printAnotherMessage(stdout_writer);
-
-    try stdout_writer.flush(); // Don't forget to flush!
-}
-
-test "simple test" {
-    const gpa = std.testing.allocator;
-    var list: std.ArrayList(i32) = .empty;
-    defer list.deinit(gpa); // Try commenting this out and see if zig detects the memory leak!
-    try list.append(gpa, 42);
-    try std.testing.expectEqual(@as(i32, 42), list.pop());
-}
-
-test "fuzz example" {
-    try std.testing.fuzz({}, testOne, .{});
-}
-
-fn testOne(context: void, smith: *std.testing.Smith) !void {
-    _ = context;
-    // Try passing `--fuzz` to `zig build test` and see if it manages to fail this test case!
-
-    const gpa = std.testing.allocator;
-    var list: std.ArrayList(u8) = .empty;
-    defer list.deinit(gpa);
-    while (!smith.eos()) switch (smith.value(enum { add_data, dup_data })) {
-        .add_data => {
-            const slice = try list.addManyAsSlice(gpa, smith.value(u4));
-            smith.bytes(slice);
-        },
-        .dup_data => {
-            if (list.items.len == 0) continue;
-            if (list.items.len > std.math.maxInt(u32)) return error.SkipZigTest;
-            const len = smith.valueRangeAtMost(u32, 1, @min(32, list.items.len));
-            const off = smith.valueRangeAtMost(u32, 0, @intCast(list.items.len - len));
-            try list.appendSlice(gpa, list.items[off..][0..len]);
-            try std.testing.expectEqualSlices(
-                u8,
-                list.items[off..][0..len],
-                list.items[list.items.len - len ..],
-            );
-        },
-    };
+    std.debug.print("word_count:{d}\n", .{word_count});
+    std.debug.print("vowel_count:{d}\n", .{vowel_count});
+    std.debug.print("space_count:{d}\n", .{space_count});
+    std.debug.print("Zig_count:{d}\n", .{zig_count});
 }

@@ -6,10 +6,13 @@ const zig_text_inspector = @import("zig_text_inspector");
 
 pub fn main() !void {
     const text: []const u8 = "Zig is simple, fast and explicit. Learning Zig is fun";
-    var vowel_count: usize = 0;
+    const vowel_c = vowel_count(text);
     var space_count: usize = 0;
-    var word_count: usize = 0;
-    var zig_count: usize = 0;
+
+    const word = "Zig";
+    var word_count = zig_count(text, word);
+
+    std.debug.print("The word '{s}' appears {d} times.\n", .{ word, word_count });
 
     //flag to track when inside words.
     var in_word: bool = false;
@@ -35,9 +38,6 @@ pub fn main() !void {
     //loop
     for (text) |char| {
         switch (char) {
-            'a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U' => {
-                vowel_count += 1;
-            },
             ' ' => {
                 space_count += 1;
             },
@@ -53,7 +53,39 @@ pub fn main() !void {
     }
 
     std.debug.print("word_count:{d}\n", .{word_count});
-    std.debug.print("vowel_count:{d}\n", .{vowel_count});
+    std.debug.print("vowel_count:{d}\n", .{vowel_c});
     std.debug.print("space_count:{d}\n", .{space_count});
-    std.debug.print("Zig_count:{d}\n", .{zig_count});
+    std.debug.print("Zig_count:{d}\n", .{word_count});
+}
+
+//function to count vowel_count
+fn vowel_count(text: []const u8) usize {
+    var vowels: usize = 0;
+
+    for (text) |char| {
+        switch (char) {
+            'a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U' => {
+                vowels += 1;
+            },
+            else => {},
+        }
+    }
+    return vowels;
+}
+
+//function to count no. of times "zig" appears in the text.
+fn zig_count(text: []const u8, word: []const u8) usize {
+    if (word.len == 0 or text.len < word.len) return 0;
+    var count: usize = 0;
+    var index: usize = 0;
+
+    while (index <= text.len - word.len) {
+        if (std.mem.startsWith(u8, text[index..], word)) {
+            count += 1;
+            index += word.len;
+        } else {
+            index += 1;
+        }
+    }
+    return count;
 }

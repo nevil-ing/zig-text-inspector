@@ -13,7 +13,7 @@ pub fn main() !void {
     const zig_c = zig_count(text, word);
     const word_count = countWords(text);
 
-    std.debug.print("The word '{s}' appears {d} times.\n", .{ word, word_count });
+    std.debug.print("The word '{s}' appears {d} times.\n", .{ word, zig_c });
 
     //flag to track when inside words.
 

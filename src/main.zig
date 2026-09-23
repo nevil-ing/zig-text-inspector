@@ -10,12 +10,12 @@ pub fn main() !void {
     var space_count: usize = 0;
 
     const word = "Zig";
-    var word_count = zig_count(text, word);
+    const zig_c = zig_count(text, word);
+    const word_count = countWords(text);
 
     std.debug.print("The word '{s}' appears {d} times.\n", .{ word, word_count });
 
     //flag to track when inside words.
-    var in_word: bool = false;
 
     //print text len.
     std.debug.print("'{s}' this text has  {d} characters\n", .{ text, text.len });
@@ -43,19 +43,28 @@ pub fn main() !void {
             },
             else => {},
         }
-
-        if (char == ' ') {
-            in_word = false;
-        } else if (!in_word) {
-            in_word = true;
-            word_count += 1;
-        }
     }
 
     std.debug.print("word_count:{d}\n", .{word_count});
     std.debug.print("vowel_count:{d}\n", .{vowel_c});
     std.debug.print("space_count:{d}\n", .{space_count});
-    std.debug.print("Zig_count:{d}\n", .{word_count});
+    std.debug.print("Zig_count:{d}\n", .{zig_c});
+}
+
+//function to count words.
+fn countWords(text: []const u8) usize {
+    var count: usize = 0;
+    var in_word: bool = false;
+
+    for (text) |char| {
+        if (char == ' ') {
+            in_word = false;
+        } else if (!in_word) {
+            in_word = true;
+            count += 1;
+        }
+    }
+    return count;
 }
 
 //function to count vowel_count

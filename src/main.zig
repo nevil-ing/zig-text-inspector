@@ -2,7 +2,7 @@ const std = @import("std");
 //const Io = std.Io;
 //a small terminal program that analzyes a piece of text
 
-const zig_text_inspector = @import("zig_text_inspector");
+//const zig_text_inspector = @import("zig_text_inspector");
 
 pub fn main() !void {
     const text: []const u8 = "Zig is simple, fast and explicit. Learning Zig is fun";
